@@ -1,0 +1,59 @@
+﻿@page "/DetailsOrg/{argId:int}"
+
+@using EMP.Core.UseCases
+@using EMP.Core.Entities
+
+@inject NavigationManager NavigationManager
+
+@inject IViewOrgByIdUseCase ViewOrgByIdUseCase
+
+@*
+@attribute [Authorize(Policy = "EMPUserOrMgrOrAdmin")]
+*@
+
+
+<h3>Details Org</h3>
+<br />
+
+
+@*  ALL Columns
+						ENTITY: Org
+
+						@rsObject.Guid
+						@rsObject.Orgname
+						@rsObject.StId
+					*@
+
+<div class="form-group row">
+    <label for="Orgname" class="col-sm-2 col-form-label">Orgname</label>
+    <div class="col-sm-10">
+        <input type="text" readonly class="form-control-plaintext" id="Orgname" value="@_Org.Orgname">
+    </div>
+</div>
+
+<br />
+<button type="button" class="btn btn-dark" @onclick="Edit">Edit</button>
+<button type="button" class="btn btn-dark" @onclick="Cancel">Cancel</button>
+
+@code {
+
+    [Parameter]
+    public int argId { get; set; }
+
+    private Org _Org = new Org();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        this._Org = await ViewOrgByIdUseCase.ExecuteAsync(this.argId);
+    }
+
+    private void Edit()
+    {
+        NavigationManager.NavigateTo($"/EditOrg/{argId}");
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/ListOrg");
+    }
+}

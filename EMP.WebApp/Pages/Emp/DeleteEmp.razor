@@ -1,0 +1,44 @@
+﻿@page "/DeleteEmp/{argId:int}"
+
+@using EMP.Core.UseCases
+@using EMP.Core.Entities
+
+@inject NavigationManager NavigationManager
+
+@inject IViewEmpByIdUseCase ViewEmpByIdUseCase
+@inject IDeleteEmpUseCase DeleteEmpUseCase
+
+@*
+@attribute [Authorize(Policy = "EMPUserOrMgrOrAdmin")]
+*@
+
+
+<h2>Are you sure you want to Delete the record?</h2>
+<br />
+
+<button type="button" class="btn btn-dark" @onclick="Delete">Delete</button>
+<button type="button" class="btn btn-dark" @onclick="Cancel">Cancel</button>
+
+@code {
+
+    [Parameter]
+    public int argId { get; set; }
+
+    private Emp _Emp = new Emp();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        this._Emp = await ViewEmpByIdUseCase.ExecuteAsync(this.argId);
+    }
+
+    private async Task Delete()
+    {
+        await DeleteEmpUseCase.ExecuteAsync(this._Emp);
+        NavigationManager.NavigateTo("/ListEmp");
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/ListEmp");
+    }
+}

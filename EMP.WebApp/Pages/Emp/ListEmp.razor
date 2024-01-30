@@ -1,0 +1,191 @@
+﻿@page "/ListEmp"
+@page "/ListEmp/{argSort}"
+@page "/ListEmp/{argSort}/{argSortOrder}/"
+
+@using EMP.Core.UseCases
+@using EMP.Core.Entities
+@using EMP.Core.UseCases.Interfaces
+
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JsRuntime
+
+@*   @inject IViewEmpByNameUseCase ViewEmpByNameUseCase   *@
+@inject IViewEmpAllUseCase ViewEmpAllUseCase
+
+@*
+@attribute [Authorize(Policy = "EMPUserOrMgrOrAdmin")]
+*@
+
+
+<h3>Emp List</h3>
+<br />
+
+@*   *@
+<button type="button"
+        class="btn btn-dark"
+@onclick="AddEmp">
+    Add Emp
+</button>
+<br />
+<br />
+
+@if (_EmpList != null && _EmpList.Count > 0)
+{
+
+    <table class="table">
+        <thead>
+            <tr style="background-color:#b3b3b3">
+                <td>Fname Link</td>
+                <td>Lname </td>
+                <td>State ID</td>
+                <td>State Name</td>
+                <td align="right">
+                    Sort:&nbsp;
+                    <button type="button"
+                            class="btn btn-link"
+                    @onclick="@(() => SortID())">
+                        ID
+                    </button>&nbsp;
+                    <button type="button"
+                            class="btn btn-link"
+                    @onclick="@(() => SortName())">
+                        Name
+                    </button>&nbsp;
+                </td>
+            </tr>
+        </thead>
+        <tbody>
+
+            @{
+                int iRowColorCount = 0;
+                string sTRStyle = "#FFFFFF";
+            }
+            @foreach (var rsObject in _EmpList)
+            {
+                if (iRowColorCount == 0)
+                {
+                    iRowColorCount = 1;
+                    sTRStyle = "#FFFFFF";   //WHITE: #FFFFFF
+                }
+                else
+                {
+                    iRowColorCount = 0;
+                    sTRStyle = "#DBDBDB";   //GREY: #DBDBDB
+                }
+
+                @*  ALL Columns
+        ENTITY: Emp
+
+        @rsObject.Guid
+        @rsObject.Fname
+        @rsObject.Lname
+        @rsObject.StId
+        *@
+                <tr style="background-color:@sTRStyle">
+                    <td>
+                        <button type="button"
+                                class="btn btn-link"
+                        @onclick="@(() => DetailsEmp(rsObject.Guid))">
+                            @rsObject.Fname
+                        </button>&nbsp;
+                    </td>
+                    <td>@rsObject.Lname</td>
+                    <td>@rsObject.StId</td>
+                    <td>@rsObject.</td>
+                    <td>
+                        <button type="button"
+                                class="btn btn-dark"
+                        @onclick="@(() => EditEmp(rsObject.Guid))">
+                            Edit
+                        </button>&nbsp;
+                        <button type="button"
+                                class="btn btn-secondary"
+                        @onclick="@(() => DetailsEmp(rsObject.Guid))">
+                            Details
+                        </button>&nbsp;
+                        <button type="button"
+                                class="btn btn-link"
+                        @onclick="@(() => DeleteEmp(rsObject.Guid))">
+                            Delete
+                        </button>&nbsp;
+                    </td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+}
+
+
+@code {
+
+    [Parameter]
+    public string argSort { get; set; } = string.Empty;
+
+    [Parameter]
+    public string argSortOrder { get; set; } = string.Empty;
+
+    //[Parameter]    //public List<Emp> _EmpList { get; set; } = new List<Emp>();
+    public List<Emp> _EmpList = new List<Emp>();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        //await JsRuntime.InvokeVoidAsync("alert", "OnParametersSetAsync argSort:" + argSort); // Alert
+        //await JsRuntime.InvokeVoidAsync("console.log", "OnParametersSetAsync argSort:" + argSort + "   argSortOrder: " + argSortOrder);
+
+        _EmpList = (await ViewEmpAllUseCase.ExecuteAsync(argSort, argSortOrder)).ToList();
+    }
+
+    //protected override async Task OnInitializedAsync()
+    //{
+    //_EmpList = (await ViewEmpByNameUseCase.ExecuteAsync("")).ToList();
+    //_EmpList = (await ViewEmpAllUseCase.ExecuteAsync()).ToList();
+    //}
+
+    private void AddEmp()
+    {
+        NavigationManager.NavigateTo("/addEmp");
+    }
+
+    private void EditEmp(int argGuid)
+    {
+        NavigationManager.NavigateTo($"/EditEmp/{argGuid}");
+    }
+
+    private void DetailsEmp(int argGuid)
+    {
+        NavigationManager.NavigateTo($"/DetailsEmp/{argGuid}");
+    }
+
+    private void DeleteEmp(int argGuid)
+    {
+        NavigationManager.NavigateTo($"/DeleteEmp/{argGuid}");
+    }
+
+    private void SortName()
+    {
+        if (argSortOrder == "ASC")
+        {
+            argSortOrder = "DESC";
+        }
+        else
+        {
+            argSortOrder = "ASC";
+        }
+        NavigationManager.NavigateTo($"/ListEmp/NAME/" + argSortOrder + "/");
+    }
+
+    private void SortID()
+    {
+        if (argSortOrder == "ASC")
+        {
+            argSortOrder = "DESC";
+        }
+        else
+        {
+            argSortOrder = "ASC";
+        }
+        NavigationManager.NavigateTo($"/ListEmp/ID/" + argSortOrder + "/");
+    }
+
+}

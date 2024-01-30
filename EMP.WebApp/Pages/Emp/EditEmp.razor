@@ -1,0 +1,90 @@
+﻿@page "/EditEmp/{argId:int}"
+
+@using EMP.Core.UseCases
+@using EMP.Core.Entities
+
+@inject NavigationManager NavigationManager
+
+@inject IViewEmpByIdUseCase ViewEmpByIdUseCase
+@inject IEditEmpUseCase EditEmpUseCase
+
+@inject IViewPlStateAllUseCase ViewPlStateAllUseCase
+
+@*
+@attribute [Authorize(Policy = "EMPUserOrMgrOrAdmin")]
+*@
+
+
+<h3>Edit Emp</h3>
+<br />
+
+<EditForm Model="_Emp" OnValidSubmit="SaveEmp">
+    <DataAnnotationsValidator></DataAnnotationsValidator>
+    <ValidationSummary></ValidationSummary>
+
+    @*  ALL Columns
+    ENTITY: Emp
+
+    @rsObject.Guid
+    @rsObject.Fname
+    @rsObject.Lname
+    @rsObject.StId
+    *@
+
+    <div class="form-group">
+        <label for="Fname">Fname</label>
+        <InputText id="Fname"
+        @bind-Value="_Emp.Fname"
+                   class="form-control">
+        </InputText>
+    </div>
+    <br />
+    <div class="form-group">
+        <label for="StId">State DD</label>&nbsp;
+        <select @bind="_Emp.StId">
+            @if (_StatesList != null)
+            {
+                @foreach (var rsObject in _StatesList)
+                {
+                    <option value="@rsObject.Guid">@rsObject.StateName</option>
+                }
+            }
+        </select>
+
+
+
+
+    </div>
+
+    <br />
+    <button type="submit" class="btn btn-dark">Save</button>
+    <button type="button" class="btn btn-dark" @onclick="Cancel">Cancel</button>
+</EditForm>
+
+@code {
+
+    [Parameter]
+    public int argId { get; set; }
+
+    private Emp _Emp = new Emp();
+
+    public List<PlState> _StatesList = new List<PlState>();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        this._Emp = await ViewEmpByIdUseCase.ExecuteAsync(this.argId);
+        this._StatesList = (await ViewPlStateAllUseCase.ExecuteAsync("NAME", "ASC")).ToList();
+    
+    }
+
+    private async Task SaveEmp()
+    {
+        await EditEmpUseCase.ExecuteAsync(this._Emp);
+        NavigationManager.NavigateTo("/ListEmp");
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/ListEmp");
+    }
+}

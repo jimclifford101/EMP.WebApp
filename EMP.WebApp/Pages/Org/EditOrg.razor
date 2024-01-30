@@ -1,0 +1,66 @@
+﻿@page "/EditOrg/{argId:int}"
+
+@using EMP.Core.UseCases
+@using EMP.Core.Entities
+
+@inject NavigationManager NavigationManager
+
+@inject IViewOrgByIdUseCase ViewOrgByIdUseCase
+@inject IEditOrgUseCase EditOrgUseCase
+
+@*
+@attribute [Authorize(Policy = "EMPUserOrMgrOrAdmin")]
+*@
+
+
+<h3>Edit Org</h3>
+<br />
+
+<EditForm Model="_Org" OnValidSubmit="SaveOrg">
+    <DataAnnotationsValidator></DataAnnotationsValidator>
+    <ValidationSummary></ValidationSummary>
+
+    @*  ALL Columns
+    ENTITY: Org
+
+    @rsObject.Guid
+    @rsObject.Orgname
+    @rsObject.StId
+    *@
+
+    <div class="form-group">
+        <label for="Orgname">Orgname</label>
+        <InputText id="Orgname"
+        @bind-Value="_Org.Orgname"
+                   class="form-control">
+        </InputText>
+    </div>
+
+    <br />
+    <button type="submit" class="btn btn-dark">Save</button>
+    <button type="button" class="btn btn-dark" @onclick="Cancel">Cancel</button>
+</EditForm>
+
+@code {
+
+    [Parameter]
+    public int argId { get; set; }
+
+    private Org _Org = new Org();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        this._Org = await ViewOrgByIdUseCase.ExecuteAsync(this.argId);
+    }
+
+    private async Task SaveOrg()
+    {
+        await EditOrgUseCase.ExecuteAsync(this._Org);
+        NavigationManager.NavigateTo("/ListOrg");
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/ListOrg");
+    }
+}

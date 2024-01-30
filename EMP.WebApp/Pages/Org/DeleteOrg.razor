@@ -1,0 +1,44 @@
+﻿@page "/DeleteOrg/{argId:int}"
+
+@using EMP.Core.UseCases
+@using EMP.Core.Entities
+
+@inject NavigationManager NavigationManager
+
+@inject IViewOrgByIdUseCase ViewOrgByIdUseCase
+@inject IDeleteOrgUseCase DeleteOrgUseCase
+
+@*
+@attribute [Authorize(Policy = "EMPUserOrMgrOrAdmin")]
+*@
+
+
+<h2>Are you sure you want to Delete the record?</h2>
+<br />
+
+<button type="button" class="btn btn-dark" @onclick="Delete">Delete</button>
+<button type="button" class="btn btn-dark" @onclick="Cancel">Cancel</button>
+
+@code {
+
+    [Parameter]
+    public int argId { get; set; }
+
+    private Org _Org = new Org();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        this._Org = await ViewOrgByIdUseCase.ExecuteAsync(this.argId);
+    }
+
+    private async Task Delete()
+    {
+        await DeleteOrgUseCase.ExecuteAsync(this._Org);
+        NavigationManager.NavigateTo("/ListOrg");
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/ListOrg");
+    }
+}

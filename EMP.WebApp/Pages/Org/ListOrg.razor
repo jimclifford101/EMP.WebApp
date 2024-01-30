@@ -1,0 +1,187 @@
+﻿@page "/ListOrg"
+@page "/ListOrg/{argSort}"
+@page "/ListOrg/{argSort}/{argSortOrder}/"
+
+@using EMP.Core.UseCases
+@using EMP.Core.Entities
+@using EMP.Core.UseCases.Interfaces
+
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JsRuntime
+
+@*   @inject IViewOrgByNameUseCase ViewOrgByNameUseCase   *@
+@inject IViewOrgAllUseCase ViewOrgAllUseCase
+
+@*
+@attribute [Authorize(Policy = "EMPUserOrMgrOrAdmin")]
+*@
+
+
+<h3>Org List</h3>
+<br />
+
+@*   *@
+<button type="button"
+        class="btn btn-dark"
+@onclick="AddOrg">
+    Add Org
+</button>
+<br />
+<br />
+
+@if (_OrgList != null && _OrgList.Count > 0)
+{
+
+    <table class="table">
+        <thead>
+            <tr style="background-color:#b3b3b3">
+                <td>Orgname Link</td>
+                <td>Orgname </td>
+                <td align="right">
+                    Sort:&nbsp;
+                    <button type="button"
+                            class="btn btn-link"
+                    @onclick="@(() => SortID())">
+                        ID
+                    </button>&nbsp;
+                    <button type="button"
+                            class="btn btn-link"
+                    @onclick="@(() => SortName())">
+                        Name
+                    </button>&nbsp;
+                </td>
+            </tr>
+        </thead>
+        <tbody>
+
+            @{
+                int iRowColorCount = 0;
+                string sTRStyle = "#FFFFFF";
+            }
+            @foreach (var rsObject in _OrgList)
+            {
+                if (iRowColorCount == 0)
+                {
+                    iRowColorCount = 1;
+                    sTRStyle = "#FFFFFF";   //WHITE: #FFFFFF
+                }
+                else
+                {
+                    iRowColorCount = 0;
+                    sTRStyle = "#DBDBDB";   //GREY: #DBDBDB
+                }
+
+                @*  ALL Columns
+        ENTITY: Org
+
+        @rsObject.Guid
+        @rsObject.Orgname
+        @rsObject.StId
+        *@
+                <tr style="background-color:@sTRStyle">
+                    <td>
+                        <button type="button"
+                                class="btn btn-link"
+                        @onclick="@(() => DetailsOrg(rsObject.Guid))">
+                            @rsObject.Orgname
+                        </button>&nbsp;
+                    </td>
+                    <td>@rsObject.Orgname</td>
+                    <td>
+                        <button type="button"
+                                class="btn btn-dark"
+                        @onclick="@(() => EditOrg(rsObject.Guid))">
+                            Edit
+                        </button>&nbsp;
+                        <button type="button"
+                                class="btn btn-secondary"
+                        @onclick="@(() => DetailsOrg(rsObject.Guid))">
+                            Details
+                        </button>&nbsp;
+                        <button type="button"
+                                class="btn btn-link"
+                        @onclick="@(() => DeleteOrg(rsObject.Guid))">
+                            Delete
+                        </button>&nbsp;
+                    </td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+}
+
+
+@code {
+
+    [Parameter]
+    public string argSort { get; set; } = string.Empty;
+
+    [Parameter]
+    public string argSortOrder { get; set; } = string.Empty;
+
+    //[Parameter]    //public List<Org> _OrgList { get; set; } = new List<Org>();
+    public List<Org> _OrgList = new List<Org>();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        //await JsRuntime.InvokeVoidAsync("alert", "OnParametersSetAsync argSort:" + argSort); // Alert
+        //await JsRuntime.InvokeVoidAsync("console.log", "OnParametersSetAsync argSort:" + argSort + "   argSortOrder: " + argSortOrder);
+
+        _OrgList = (await ViewOrgAllUseCase.ExecuteAsync(argSort, argSortOrder)).ToList();
+    }
+
+    //protected override async Task OnInitializedAsync()
+    //{
+    //_OrgList = (await ViewOrgByNameUseCase.ExecuteAsync("")).ToList();
+    //_OrgList = (await ViewOrgAllUseCase.ExecuteAsync()).ToList();
+    //}
+
+    private void AddOrg()
+    {
+        NavigationManager.NavigateTo("/addOrg");
+    }
+
+    private void EditOrg(int argGuid)
+    {
+        NavigationManager.NavigateTo($"/EditOrg/{argGuid}");
+    }
+
+    private void DetailsOrg(int argGuid)
+    {
+        NavigationManager.NavigateTo($"/DetailsOrg/{argGuid}");
+    }
+
+    private void DeleteOrg(int argGuid)
+    {
+        NavigationManager.NavigateTo($"/DeleteOrg/{argGuid}");
+    }
+
+    private void SortName()
+    {
+        if (argSortOrder == "ASC")
+        {
+            argSortOrder = "DESC";
+        }
+        else
+        {
+            argSortOrder = "ASC";
+        }
+        NavigationManager.NavigateTo($"/ListOrg/NAME/" + argSortOrder + "/");
+    }
+
+    private void SortID()
+    {
+        if (argSortOrder == "ASC")
+        {
+            argSortOrder = "DESC";
+        }
+        else
+        {
+            argSortOrder = "ASC";
+        }
+        NavigationManager.NavigateTo($"/ListOrg/ID/" + argSortOrder + "/");
+    }
+
+}
+

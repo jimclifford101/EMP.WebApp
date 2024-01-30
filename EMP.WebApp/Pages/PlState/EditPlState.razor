@@ -1,0 +1,66 @@
+﻿@page "/EditPlState/{argId:int}"
+
+@using EMP.Core.UseCases
+@using EMP.Core.Entities
+
+@inject NavigationManager NavigationManager
+
+@inject IViewPlStateByIdUseCase ViewPlStateByIdUseCase
+@inject IEditPlStateUseCase EditPlStateUseCase
+
+@*
+@attribute [Authorize(Policy = "EMPUserOrMgrOrAdmin")]
+*@
+
+
+<h3>Edit PlState</h3>
+<br />
+
+<EditForm Model="_PlState" OnValidSubmit="SavePlState">
+    <DataAnnotationsValidator></DataAnnotationsValidator>
+    <ValidationSummary></ValidationSummary>
+
+    @*  ALL Columns
+    ENTITY: PlState
+
+    @rsObject.Guid
+    @rsObject.StateName
+
+    *@
+
+    <div class="form-group">
+        <label for="ValueString">StateName</label>
+        <InputText id="ValueString"
+        @bind-Value="_PlState.StateName"
+                   class="form-control">
+        </InputText>
+    </div>
+
+    <br />
+    <button type="submit" class="btn btn-dark">Save</button>
+    <button type="button" class="btn btn-dark" @onclick="Cancel">Cancel</button>
+</EditForm>
+
+@code {
+
+    [Parameter]
+    public int argId { get; set; }
+
+    private PlState _PlState = new PlState();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        this._PlState = await ViewPlStateByIdUseCase.ExecuteAsync(this.argId);
+    }
+
+    private async Task SavePlState()
+    {
+        await EditPlStateUseCase.ExecuteAsync(this._PlState);
+        NavigationManager.NavigateTo("/ListPlState");
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/ListPlState");
+    }
+}

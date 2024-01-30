@@ -1,0 +1,60 @@
+﻿@page "/DetailsPlState/{argId:int}"
+
+@using EMP.Core.UseCases
+@using EMP.Core.Entities
+
+@inject NavigationManager NavigationManager
+
+@inject IViewPlStateByIdUseCase ViewPlStateByIdUseCase
+
+@*
+@attribute [Authorize(Policy = "EMPUserOrMgrOrAdmin")]
+*@
+
+
+<h3>Details PlState</h3>
+<br />
+
+
+@*  ALL Columns
+						ENTITY: PlState
+
+						@rsObject.Guid
+						@rsObject.StateName
+									*@
+
+
+<div class="form-group row">
+    <label for="ValueString" class="col-sm-2 col-form-label">ValueString</label>
+    <div class="col-sm-10">
+        <input type="text" readonly class="form-control-plaintext" id="ValueString" value="@_PlState.StateName">
+    </div>
+</div>
+
+<br />
+<button type="button" class="btn btn-dark" @onclick="Edit">Edit</button>
+<button type="button" class="btn btn-dark" @onclick="Cancel">Cancel</button>
+
+@code {
+
+    [Parameter]
+    public int argId { get; set; }
+
+    private PlState _PlState = new PlState();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        this._PlState = await ViewPlStateByIdUseCase.ExecuteAsync(this.argId);
+    }
+
+    private void Edit()
+    {
+        NavigationManager.NavigateTo($"/EditPlState/{argId}");
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/ListPlState");
+    }
+}
+

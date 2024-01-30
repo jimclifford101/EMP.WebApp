@@ -1,0 +1,196 @@
+﻿@page "/SearchEmp"
+@page "/SearchEmp/{argWhere}"
+@page "/SearchEmp/{argWhere}/{argSort}"
+@page "/SearchEmp/{argWhere}/{argSort}/{argSortOrder}/"
+
+@using EMP.Core.UseCases
+
+
+@inject NavigationManager NavigationManager
+
+
+@inject ISearchEmpUseCase SearchEmpAllUseCase
+
+@*
+@attribute [Authorize(Policy = "EMPUserOrMgrOrAdmin")]
+*@
+
+
+<h3>Emp Search</h3>
+<br />
+
+@*     OnValidSubmit="SaveEmp"     style="background-color:#b3b3b3"    class="table"  class="form-control" *@
+<EditForm Model="_EmpSearchModel">
+    <div class="form-group">
+        <table width="100%">
+            <tr > 
+                <td align="left" valign="top" nowrap>
+                    <button type="button" class="btn btn-dark" @onclick="SearchButton">Search</button>&nbsp;&nbsp;
+                    <label for="Fname">First Name:</label>&nbsp;<InputText id="Fname" @bind-Value="_EmpSearchModel.Fname"></InputText>&nbsp;&nbsp;&nbsp;
+                    <label for="Lname">Last Name:</label>&nbsp;<InputText id="Lname" @bind-Value="_EmpSearchModel.Lname"></InputText>&nbsp;&nbsp;&nbsp;
+                    <label for="StateName">State Name:</label>&nbsp;<InputText id="StateName" @bind-Value="_EmpSearchModel.StateName"></InputText>
+                </td>
+            </tr>
+        </table>
+
+    </div>
+</EditForm>
+
+
+
+
+<br />
+<br />
+
+@if (_EmpList != null && _EmpList.Count > 0)
+{
+
+    <table class="table">
+        <thead>
+            <tr style="background-color:#b3b3b3">
+                <td>Fname Link</td>
+                <td>Lname </td>
+                <td>State </td>
+                <td align="right">
+                    Sort:&nbsp;
+                    <button type="button"
+                            class="btn btn-link"
+                            @onclick="@(() => SortFName())">
+                        First Name
+                    </button>&nbsp;
+                    <button type="button"
+                            class="btn btn-link"
+                            @onclick="@(() => SortLName())">
+                        Last Name
+                    </button>&nbsp;
+                    <button type="button"
+                            class="btn btn-link"
+                            @onclick="@(() => SortState())">
+                        State Name
+                    </button>&nbsp;
+                </td>
+            </tr>
+        </thead>
+        <tbody>
+
+            @{
+                int iRowColorCount = 0;
+                string sTRStyle = "#FFFFFF";
+            }
+            @foreach (var rsObject in _EmpList)
+            {
+                if (iRowColorCount == 0)
+                {
+                    iRowColorCount = 1;
+                    sTRStyle = "#FFFFFF";   //WHITE: #FFFFFF
+                }
+                else
+                {
+                    iRowColorCount = 0;
+                    sTRStyle = "#DBDBDB";   //GREY: #DBDBDB
+                }
+
+                @*  ALL Columns
+        ENTITY: Emp
+
+        @rsObject.Guid
+        @rsObject.Fname
+        @rsObject.Lname
+        @rsObject.StId
+        *@
+                <tr style="background-color:@sTRStyle">
+                    <td>@rsObject.Fname</td>
+                    <td>@rsObject.Lname</td>
+                    <td>@rsObject.StateName</td>
+                    <td>&nbsp;</td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+}
+
+
+
+@code {
+
+    [Parameter]
+    public string argWhere { get; set; } = string.Empty;
+
+    [Parameter]
+    public string argSort { get; set; } = string.Empty;
+
+    [Parameter]
+    public string argSortOrder { get; set; } = string.Empty;
+
+    //[Parameter]    
+    public List<EmpSearchViewModel> _EmpList = new List<EmpSearchViewModel>();
+
+    //[Parameter]
+    public EmpSearchModel _EmpSearchModel = new EmpSearchModel();
+
+    protected override async Task OnParametersSetAsync()
+    {
+
+        _EmpList = (await SearchEmpAllUseCase.ExecuteAsync(argSort, argSortOrder, _EmpSearchModel)).ToList();
+    }
+
+
+    private void SearchButton()
+    {
+        // pass Current DateTime so OnParametersSetAsync fires
+        NavigationManager.NavigateTo($"/SearchEmp/" + @DateTime.Now.ToString());
+    }
+
+    private void SortFName()
+    {
+        if (argSortOrder == "ASC")
+        {
+            argSortOrder = "DESC";
+        }
+        else
+        {
+            argSortOrder = "ASC";
+        }
+
+        string sDateTimeNow = @DateTime.Now.ToString();
+        sDateTimeNow = sDateTimeNow.Replace("/", "");
+
+        NavigationManager.NavigateTo($"/SearchEmp/" + sDateTimeNow + "/FNAME/" + argSortOrder + "/ ");
+    }
+
+    private void SortLName()
+    {
+        if (argSortOrder == "ASC")
+        {
+            argSortOrder = "DESC";
+        }
+        else
+        {
+            argSortOrder = "ASC";
+        }
+
+        string sDateTimeNow = @DateTime.Now.ToString();
+        sDateTimeNow = sDateTimeNow.Replace("/", "");
+
+        NavigationManager.NavigateTo($"/SearchEmp/" + sDateTimeNow + "/LNAME/" + argSortOrder + "/");
+    }
+
+    private void SortState()
+    {
+        if (argSortOrder == "ASC")
+        {
+            argSortOrder = "DESC";
+        }
+        else
+        {
+            argSortOrder = "ASC";
+        }
+
+        string sDateTimeNow = @DateTime.Now.ToString();
+        sDateTimeNow = sDateTimeNow.Replace("/", "");
+
+        NavigationManager.NavigateTo($"/SearchEmp/" + sDateTimeNow + "/STATENAME/" + argSortOrder + "/");
+    }
+
+}

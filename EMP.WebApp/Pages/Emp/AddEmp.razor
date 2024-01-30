@@ -1,0 +1,57 @@
+﻿@page "/AddEmp"
+
+@using EMP.Core.UseCases
+@using EMP.Core.Entities
+
+@inject NavigationManager NavigationManager
+
+@inject IAddEmpUseCase AddEmpUseCase
+
+@*
+@attribute [Authorize(Policy = "EMPUserOrMgrOrAdmin")]
+*@
+
+<h3>Add Emp</h3>
+<br />
+
+<EditForm Model="_Emp" OnValidSubmit="SaveEmp">
+    <DataAnnotationsValidator></DataAnnotationsValidator>
+    <ValidationSummary></ValidationSummary>
+
+    @*  ALL Columns
+    ENTITY: Emp
+
+    @rsObject.Guid
+    @rsObject.Fname
+    @rsObject.Lname
+    @rsObject.StId
+    *@
+
+    <div class="form-group">
+        <label for="Fname">Fname</label>
+        <InputText id="Fname"
+        @bind-Value="_Emp.Fname"
+                   class="form-control">
+        </InputText>
+    </div>
+
+
+    <br />
+    <button type="submit" class="btn btn-dark">Save</button>
+    <button type="button" class="btn btn-dark" @onclick="Cancel">Cancel</button>
+</EditForm>
+
+@code {
+    private Emp _Emp = new Emp();
+
+    private async Task SaveEmp()
+    {
+        await AddEmpUseCase.ExecuteAsync(_Emp);
+        NavigationManager.NavigateTo("/ListEmp");
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/ListEmp");
+    }
+}

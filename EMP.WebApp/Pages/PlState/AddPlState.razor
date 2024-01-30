@@ -1,0 +1,56 @@
+﻿@page "/AddPlState"
+ 
+ @using EMP.Core.UseCases
+ @using EMP.Core.Entities
+ 
+@inject NavigationManager NavigationManager
+ 
+@inject IAddPlStateUseCase AddPlStateUseCase
+ 
+@*
+@attribute [Authorize(Policy = "EMPUserOrMgrOrAdmin")]
+*@
+ 
+<h3>Add PlState</h3>
+<br />
+ 
+<EditForm Model="_PlState" OnValidSubmit="SavePlState">
+    <DataAnnotationsValidator></DataAnnotationsValidator>
+    <ValidationSummary></ValidationSummary>
+ 
+					@*  ALL Columns
+						ENTITY: PlState
+
+						@rsObject.Guid
+						@rsObject.StateName
+
+					*@ 
+ 
+    <div class="form-group">
+        <label for="ValueString">StateName</label>
+        <InputText id="ValueString"
+        @bind-Value="_PlState.StateName"
+                   class="form-control">
+        </InputText>
+    </div>
+ 
+ 
+    <br />
+    <button type="submit" class="btn btn-dark">Save</button>
+    <button type="button" class="btn btn-dark" @onclick="Cancel">Cancel</button>
+</EditForm>
+ 
+@code {
+    private PlState _PlState = new PlState();
+ 
+    private async Task SavePlState()
+    {
+        await AddPlStateUseCase.ExecuteAsync(_PlState);
+        NavigationManager.NavigateTo("/ListPlState");
+    }
+ 
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/ListPlState");
+    }
+}

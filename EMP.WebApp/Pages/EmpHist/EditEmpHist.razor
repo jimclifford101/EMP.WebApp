@@ -1,0 +1,114 @@
+﻿@page "/EditEmpHist/{argId:int}"
+
+@using EMP.Core.UseCases
+@using EMP.Core.Entities
+
+@inject NavigationManager NavigationManager
+
+@inject IViewEmpHistByIdUseCase ViewEmpHistByIdUseCase
+@inject IEditEmpHistUseCase EditEmpHistUseCase
+
+@inject IViewEmpAllUseCase ViewEmpAllUseCase 
+@inject IViewOrgAllUseCase ViewOrgAllUseCase
+
+
+@*
+@attribute [Authorize(Policy = "EMPUserOrMgrOrAdmin")]
+*@
+
+
+<h3>Edit EmpHist</h3>
+<br />
+
+<EditForm Model="_EmpHist" OnValidSubmit="SaveEmpHist">
+    <DataAnnotationsValidator></DataAnnotationsValidator>
+    <ValidationSummary></ValidationSummary>
+
+    @*  ALL Columns
+    ENTITY: EmpHist
+
+    @rsObject.Guid
+    @rsObject.GuidEmp
+    @rsObject.GuidOrg
+    @rsObject.Title
+    @rsObject.CurrentEmp
+    *@
+
+    <div class="form-group">
+    <label for="GuidEmp">Emp DD</label>&nbsp;
+    <select @bind="_EmpHist.GuidEmp">
+        @if (_EmpList != null)
+        {
+            @foreach (var rsObject in _EmpList)
+            {
+                    <option value="@rsObject.Guid">@rsObject.Fname @rsObject.Lname</option>
+            }
+        }
+    </select>
+    </div>
+
+        <div class="form-group">
+    <label for="StId">Org DD</label>&nbsp;
+        <select @bind="_EmpHist.GuidOrg">
+            @if (_OrgList != null)
+        {
+                @foreach (var rsObject in _OrgList)
+            {
+                <option value="@rsObject.Guid">@rsObject.Orgname</option>
+            }
+        }
+    </select>
+    </div>
+    <div class="form-group">
+        <label for="Title">Title</label>
+        <InputText id="Title"
+        @bind-Value="_EmpHist.Title"
+                   class="form-control">
+        </InputText>
+    </div>
+    <div class="form-group">
+        <label class="p-3">choose if current emphist record: </label>
+        <select class="form-control" @bind="_EmpHist.CurrentEmp">
+            <option selected disabled value="-1"> - </option>
+            <option value="0"> NOT CURRENT</option>
+            <option value="1"> CURRENTLY AT</option>
+        </select>
+    </div>
+    <br />
+    <button type="submit" class="btn btn-dark">Save</button>
+    <button type="button" class="btn btn-dark" @onclick="Cancel">Cancel</button>
+</EditForm>
+
+@code {
+
+    [Parameter]
+    public int argId { get; set; }
+
+    private EmpHist _EmpHist = new EmpHist();
+    public List<Emp> _EmpList = new List<Emp>();
+    public List<Org> _OrgList = new List<Org>();
+
+
+
+
+    protected override async Task OnParametersSetAsync()
+    {
+        this._EmpHist = await ViewEmpHistByIdUseCase.ExecuteAsync(this.argId);
+
+        this._EmpList = (await ViewEmpAllUseCase.ExecuteAsync("NAME", "ASC")).ToList();
+
+
+        this._OrgList = (await ViewOrgAllUseCase.ExecuteAsync("NAME", "ASC")).ToList();
+    }
+
+    private async Task SaveEmpHist()
+    {
+        await EditEmpHistUseCase.ExecuteAsync(this._EmpHist);
+        NavigationManager.NavigateTo("/ListEmpHist");
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/ListEmpHist");
+    }
+}

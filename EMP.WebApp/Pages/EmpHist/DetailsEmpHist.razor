@@ -1,0 +1,61 @@
+﻿@page "/DetailsEmpHist/{argId:int}"
+
+@using EMP.Core.UseCases
+@using EMP.Core.Entities
+
+@inject NavigationManager NavigationManager
+
+@inject IViewEmpHistByIdUseCase ViewEmpHistByIdUseCase
+
+@*
+@attribute [Authorize(Policy = "EMPUserOrMgrOrAdmin")]
+*@
+
+
+<h3>Details EmpHist</h3>
+<br />
+
+
+@*  ALL Columns
+						ENTITY: EmpHist
+
+						@rsObject.Guid
+						@rsObject.GuidEmp
+						@rsObject.GuidOrg
+						@rsObject.Title
+						@rsObject.CurrentEmp
+					*@
+
+<div class="form-group row">
+    <label for="Title" class="col-sm-2 col-form-label">Title</label>
+    <div class="col-sm-10">
+        <input type="text" readonly class="form-control-plaintext" id="Title" value="@_EmpHist.Title">
+    </div>
+</div>
+
+<br />
+<button type="button" class="btn btn-dark" @onclick="Edit">Edit</button>
+<button type="button" class="btn btn-dark" @onclick="Cancel">Cancel</button>
+
+@code {
+
+    [Parameter]
+    public int argId { get; set; }
+
+    private EmpHist _EmpHist = new EmpHist();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        this._EmpHist = await ViewEmpHistByIdUseCase.ExecuteAsync(this.argId);
+    }
+
+    private void Edit()
+    {
+        NavigationManager.NavigateTo($"/EditEmpHist/{argId}");
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/ListEmpHist");
+    }
+}

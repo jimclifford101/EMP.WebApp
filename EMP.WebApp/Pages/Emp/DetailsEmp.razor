@@ -1,0 +1,60 @@
+﻿@page "/DetailsEmp/{argId:int}"
+
+@using EMP.Core.UseCases
+@using EMP.Core.Entities
+
+@inject NavigationManager NavigationManager
+
+@inject IViewEmpByIdUseCase ViewEmpByIdUseCase
+
+@*
+@attribute [Authorize(Policy = "EMPUserOrMgrOrAdmin")]
+*@
+
+
+<h3>Details Emp</h3>
+<br />
+
+
+@*  ALL Columns
+						ENTITY: Emp
+
+						@rsObject.Guid
+						@rsObject.Fname
+						@rsObject.Lname
+						@rsObject.StId
+					*@
+
+<div class="form-group row">
+    <label for="Fname" class="col-sm-2 col-form-label">Fname</label>
+    <div class="col-sm-10">
+        <input type="text" readonly class="form-control-plaintext" id="Fname" value="@_Emp.Fname">
+    </div>
+</div>
+
+<br />
+<button type="button" class="btn btn-dark" @onclick="Edit">Edit</button>
+<button type="button" class="btn btn-dark" @onclick="Cancel">Cancel</button>
+
+@code {
+
+    [Parameter]
+    public int argId { get; set; }
+
+    private Emp _Emp = new Emp();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        this._Emp = await ViewEmpByIdUseCase.ExecuteAsync(this.argId);
+    }
+
+    private void Edit()
+    {
+        NavigationManager.NavigateTo($"/EditEmp/{argId}");
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/ListEmp");
+    }
+}

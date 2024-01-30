@@ -1,0 +1,186 @@
+﻿ 
+@page "/ListPlState"
+@page "/ListPlState/{argSort}"
+@page "/ListPlState/{argSort}/{argSortOrder}/"
+ 
+@using EMP.Core.UseCases
+
+@using EMP.Core.Entities
+@using EMP.Core.UseCases.Interfaces
+ 
+
+
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JsRuntime
+ 
+@*   @inject IViewPlStateByNameUseCase ViewPlStateByNameUseCase   *@
+@inject IViewPlStateAllUseCase ViewPlStateAllUseCase
+ 
+@*
+@attribute [Authorize(Policy = "EMPUserOrMgrOrAdmin")]
+*@
+ 
+ 
+<h3>PlState List</h3>
+<br/>
+ 
+@*   *@
+<button
+    type="button"
+    class="btn btn-dark"
+    @onclick="AddPlState">Add PlState</button>
+<br/><br/>
+ 
+@if (_PlStateList != null && _PlStateList.Count > 0)
+{
+ 
+    <table class="table">
+    <thead>
+        <tr style="background-color:#b3b3b3">
+           <td>ValueString Link</td>
+           <td>ValueString </td>
+               <td>Value </td>
+                <td align="right">Sort:&nbsp;
+                    <button type="button"
+                            class="btn btn-link"
+                            @onclick="@(() => SortID())">ID</button>&nbsp;
+                    <button type="button"
+                            class="btn btn-link"
+                            @onclick="@(() => SortName())">Name</button>&nbsp;
+                </td>
+        </tr>
+    </thead>
+    <tbody>
+ 
+    @{
+        int iRowColorCount = 0;
+        string sTRStyle = "#FFFFFF";
+    }
+     @foreach (var rsObject in _PlStateList)
+    {
+        if (iRowColorCount == 0)
+        {
+            iRowColorCount = 1;
+            sTRStyle = "#FFFFFF";   //WHITE: #FFFFFF
+        }
+        else
+        {
+            iRowColorCount = 0;
+            sTRStyle = "#DBDBDB";   //GREY: #DBDBDB
+        }
+ 
+					@*  ALL Columns
+						ENTITY: PlState
+
+						@rsObject.Guid
+                        @rsObject.StateName
+
+					*@ 
+        <tr style="background-color:@sTRStyle">
+            <td>
+                <button type="button"
+                        class="btn btn-link"
+                        @onclick="@(() => DetailsPlState(rsObject.Guid))">
+                            @rsObject.StateName
+                </button>&nbsp;
+            </td>
+                    <td>@rsObject.StateName</td>
+
+
+            <td>
+                <button type="button"
+                        class="btn btn-dark"
+                        @onclick="@(() => EditPlState(rsObject.Guid))">
+                    Edit
+                </button>&nbsp;
+                <button type="button"
+                        class="btn btn-secondary"
+                        @onclick="@(() => DetailsPlState(rsObject.Guid))">
+                    Details
+                </button>&nbsp;
+                <button type="button"
+                        class="btn btn-link"
+                        @onclick="@(() => DeletePlState(rsObject.Guid))">
+                    Delete
+                </button>&nbsp;
+            </td>
+        </tr>
+    }
+ 
+        </tbody>
+    </table>
+}
+ 
+ 
+@code {
+ 
+    [Parameter]
+    public string argSort { get; set; } = string.Empty;
+ 
+    [Parameter]
+    public string argSortOrder { get; set; } = string.Empty;
+ 
+    //[Parameter]    //public List<PlState> _PlStateList { get; set; } = new List<PlState>();
+    public List<PlState> _PlStateList = new List<PlState>();
+ 
+    protected override async Task OnParametersSetAsync()
+    {
+        //await JsRuntime.InvokeVoidAsync("alert", "OnParametersSetAsync argSort:" + argSort); // Alert
+        //await JsRuntime.InvokeVoidAsync("console.log", "OnParametersSetAsync argSort:" + argSort + "   argSortOrder: " + argSortOrder); 
+ 
+        _PlStateList = (await ViewPlStateAllUseCase.ExecuteAsync(argSort, argSortOrder)).ToList();
+    }
+ 
+    //protected override async Task OnInitializedAsync()
+    //{
+        //_PlStateList = (await ViewPlStateByNameUseCase.ExecuteAsync("")).ToList();
+        //_PlStateList = (await ViewPlStateAllUseCase.ExecuteAsync()).ToList();
+    //}
+ 
+    private void AddPlState()
+    {
+        NavigationManager.NavigateTo("/addPlState");
+    }
+ 
+    private void EditPlState(int argGuid)
+    {
+        NavigationManager.NavigateTo($"/EditPlState/{argGuid}");
+    }
+ 
+    private void DetailsPlState(int argGuid)
+    {
+        NavigationManager.NavigateTo($"/DetailsPlState/{argGuid}");
+    }
+ 
+    private void DeletePlState(int argGuid)
+    {
+        NavigationManager.NavigateTo($"/DeletePlState/{argGuid}");
+    }
+ 
+    private void SortName()
+    {
+        if (argSortOrder == "ASC")
+        {
+            argSortOrder = "DESC";
+        }
+        else
+        {
+            argSortOrder = "ASC";
+        }
+        NavigationManager.NavigateTo($"/ListPlState/NAME/" + argSortOrder + "/");
+    }
+ 
+    private void SortID()
+    {
+        if (argSortOrder == "ASC")
+        {
+            argSortOrder = "DESC";
+        }
+        else
+        {
+            argSortOrder = "ASC";
+        }
+        NavigationManager.NavigateTo($"/ListPlState/ID/" + argSortOrder + "/");
+    }
+ 
+}
