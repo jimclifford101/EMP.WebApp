@@ -7,13 +7,42 @@ using EMP.WebApp.Data;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.DataProtection.Repositories;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var constr = builder.Configuration.GetConnectionString("myConxStrAppSettings"); 
+//IDENTITY 1. Configure Individual authorizations Based on AspNetUserClaims table 'Departments' (AFTER var builder...CreateBuilder  BEFORE AddDbContextFactory )
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("Admin", policy => policy.RequireClaim("Department", "Administration"));
+    options.AddPolicy("User", policy => policy.RequireClaim("Department", "User"));
+    options.AddPolicy("Mgr", policy => policy.RequireClaim("Department", "Manager"));
+});
+//IDENTITY 2. Configure Grouped Policies  EMPUserOrMgrOrAdmin
+builder.Services.AddAuthorization(options => {
+    options.AddPolicy("EMPUserOrMgrOrAdmin", policy =>
+        policy.RequireAssertion(context =>
+        context.User.HasClaim(c => ((c.Type == "Department" && c.Value == "Administration") || (c.Type == "Department" && c.Value == "Manager") || (c.Type == "Department" && c.Value == "User")))));
+    options.AddPolicy("EMPMgrOrAdmin", policy =>
+        policy.RequireAssertion(context =>
+        context.User.HasClaim(c => ((c.Type == "Department" && c.Value == "Administration") || (c.Type == "Department" && c.Value == "Manager")))));
+});
+
+var constr = builder.Configuration.GetConnectionString("myConxStrAppSettings");
+
+//IDENTITY 3. Configure EF Core for Identity (AFTER var constr.. GetConnectionString  BEFORE AddDbContextFactory )
+builder.Services.AddDbContext<IdentityAccountsDbContext>(options => { options.UseSqlServer(constr); });
+
+//IDENTITY 4. Configure Identity
+builder.Services.AddDefaultIdentity<IdentityUser>(options =>
+{
+    options.SignIn.RequireConfirmedEmail = false;
+}).AddEntityFrameworkStores<IdentityAccountsDbContext>();
+
+
 builder.Services.AddDbContextFactory<CoreDBContext>(options => { options.UseSqlServer(constr); });
 
 /*
@@ -99,6 +128,10 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+//IDENTITY 5. Enable Identity BOTTOM (after 'app.UseRouting' before 'app.MapBlazorHub();')
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");

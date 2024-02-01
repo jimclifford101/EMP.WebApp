@@ -7,9 +7,9 @@
 
 @inject ISearchEmpUseCase SearchEmpUseCase
 
-@*
-@attribute [Authorize(Policy = "EMPUserOrMgrOrAdmin")]
-*@
+@*     @attribute [Authorize(Policy = "EMPUserOrMgrOrAdmin")] *@
+@attribute [Authorize(Policy = "User")]
+
 
 
 <h3>Emp Search</h3>

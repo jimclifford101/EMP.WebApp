@@ -9,18 +9,18 @@
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JsRuntime
 
-@*   @inject IViewEmpByNameUseCase ViewEmpByNameUseCase   *@
+
 @inject IViewEmpAllUseCase ViewEmpAllUseCase
 
-@*
-@attribute [Authorize(Policy = "EMPUserOrMgrOrAdmin")]
-*@
+@*  @attribute [Authorize(Policy = "EMPUserOrMgrOrAdmin")]  *@
+@attribute [Authorize(Policy = "EMPMgrOrAdmin")]
+
 
 
 <h3>Emp List</h3>
 <br />
 
-@*   *@
+
 <button type="button"
         class="btn btn-dark"
 @onclick="AddEmp">
