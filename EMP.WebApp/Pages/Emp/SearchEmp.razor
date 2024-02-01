@@ -3,13 +3,9 @@
 @page "/SearchEmp/{argWhere}/{argSort}"
 @page "/SearchEmp/{argWhere}/{argSort}/{argSortOrder}/"
 
-@using EMP.Core.UseCases
-
-
 @inject NavigationManager NavigationManager
 
-
-@inject ISearchEmpUseCase SearchEmpAllUseCase
+@inject ISearchEmpUseCase SearchEmpUseCase
 
 @*
 @attribute [Authorize(Policy = "EMPUserOrMgrOrAdmin")]
@@ -35,9 +31,6 @@
 
     </div>
 </EditForm>
-
-
-
 
 <br />
 <br />
@@ -91,13 +84,10 @@
                 }
 
                 @*  ALL Columns
-        ENTITY: Emp
 
-        @rsObject.Guid
-        @rsObject.Fname
-        @rsObject.Lname
-        @rsObject.StId
-        *@
+                        Reference SearchViewModel
+                        
+                *@
                 <tr style="background-color:@sTRStyle">
                     <td>@rsObject.Fname</td>
                     <td>@rsObject.Lname</td>
@@ -132,7 +122,7 @@
     protected override async Task OnParametersSetAsync()
     {
 
-        _EmpList = (await SearchEmpAllUseCase.ExecuteAsync(argSort, argSortOrder, _EmpSearchModel)).ToList();
+        _EmpList = (await SearchEmpUseCase.ExecuteAsync(argSort, argSortOrder, _EmpSearchModel)).ToList();
     }
 
 

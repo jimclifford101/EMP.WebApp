@@ -1,0 +1,129 @@
+﻿@page "/SearchOrg"
+@page "/SearchOrg/{argWhere}"
+@page "/SearchOrg/{argWhere}/{argSort}"
+@page "/SearchOrg/{argWhere}/{argSort}/{argSortOrder}/"
+
+@inject NavigationManager NavigationManager
+
+@inject ISearchOrgUseCase SearchOrgUseCase
+
+@*   @attribute [Authorize(Policy = "EMPUserOrMgrOrAdmin")]   *@
+
+<h3>Org Search</h3>
+<br />
+
+<EditForm Model="_OrgSearchInputModel">
+    <div class="form-group">
+        <table width="100%">
+            <tr>
+                <td align="left" valign="top" nowrap>
+                    <button type="button" class="btn btn-dark" @onclick="SearchButton">Search</button>&nbsp;&nbsp;
+                    <label for="Fname">Orgname:</label>&nbsp;<InputText id="Orgname" @bind-Value="_OrgSearchInputModel.Orgname"></InputText>&nbsp;&nbsp;&nbsp;
+                </td>
+            </tr>
+        </table>
+
+    </div>
+</EditForm>
+
+<br />
+<br />
+
+@if (_OrgList != null && _OrgList.Count > 0)
+{
+    <table class="table">
+        <thead>
+            <tr style="background-color:#b3b3b3">
+                <td>Orgname</td>
+                <td align="right">
+                    Sort:&nbsp;
+                    <button type="button"
+                            class="btn btn-link"
+                    @onclick="@(() => SortOrgname())">
+                        Orgname
+                    </button>&nbsp;
+                </td>
+            </tr>
+        </thead>
+        <tbody>
+
+            @{
+                int iRowColorCount = 0;
+                string sTRStyle = "#FFFFFF";
+            }
+            @foreach (var rsObject in _OrgList)
+            {
+                if (iRowColorCount == 0)
+                {
+                    iRowColorCount = 1;
+                    sTRStyle = "#FFFFFF";   //WHITE: #FFFFFF
+                }
+                else
+                {
+                    iRowColorCount = 0;
+                    sTRStyle = "#DBDBDB";   //GREY: #DBDBDB
+                }
+
+                @*  ALL Columns
+
+        Reference Org SearchViewModel
+
+        *@
+                <tr style="background-color:@sTRStyle">
+                    <td>@rsObject.Guid</td>
+                    <td>@rsObject.Orgname</td>
+                    <td>&nbsp;</td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+}
+
+@code {
+
+    [Parameter]
+    public string argWhere { get; set; } = string.Empty;
+
+    [Parameter]
+    public string argSort { get; set; } = string.Empty;
+
+    [Parameter]
+    public string argSortOrder { get; set; } = string.Empty;
+
+    //[Parameter]
+    public List<OrgSearchViewModel> _OrgList = new List<OrgSearchViewModel>();
+
+    //[Parameter]
+    public OrgSearchInputModel _OrgSearchInputModel = new OrgSearchInputModel();
+
+    protected override async Task OnParametersSetAsync()
+    {
+
+        _OrgList = (await SearchOrgUseCase.ExecuteAsync(argSort, argSortOrder, _OrgSearchInputModel)).ToList();
+    }
+
+    private void SearchButton()
+    {
+        // pass Current DateTime so OnParametersSetAsync fires
+        NavigationManager.NavigateTo($"/SearchOrg/" + @DateTime.Now.ToString());
+    }
+
+    private void SortOrgname()
+    {
+        if (argSortOrder == "ASC")
+        {
+            argSortOrder = "DESC";
+        }
+        else
+        {
+            argSortOrder = "ASC";
+        }
+
+        string sDateTimeNow = @DateTime.Now.ToString();
+        sDateTimeNow = sDateTimeNow.Replace("/", "");
+
+        NavigationManager.NavigateTo($"/SearchOrg/" + sDateTimeNow + "/Orgname/" + argSortOrder + "/ ");
+    }
+
+}

@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EMP.Core.DBRepos
+namespace EMP.Core.DBRepos.TestData
 {
     public class EmpRepositoryTestData : IEmpRepository
     {

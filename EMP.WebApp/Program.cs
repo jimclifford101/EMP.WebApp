@@ -1,5 +1,6 @@
 using EMP.Core.DBRepos;
 using EMP.Core.DBRepos.Interfaces;
+using EMP.Core.DBRepos.TestData;
 using EMP.Core.UseCases;
 using EMP.Core.UseCases.Interfaces;
 using EMP.WebApp.Data;
@@ -73,6 +74,7 @@ builder.Services.AddTransient<IViewOrgByIdUseCase, ViewOrgByIdUseCase>();
 builder.Services.AddTransient<IAddOrgUseCase, AddOrgUseCase>();
 builder.Services.AddTransient<IEditOrgUseCase, EditOrgUseCase>();
 builder.Services.AddTransient<IDeleteOrgUseCase, DeleteOrgUseCase>();
+builder.Services.AddTransient<ISearchOrgUseCase, SearchOrgUseCase>();
 
 builder.Services.AddTransient<IViewEmpHistAllUseCase, ViewEmpHistAllUseCase>();
 builder.Services.AddTransient<IViewEmpHistByNameUseCase, ViewEmpHistByNameUseCase>();

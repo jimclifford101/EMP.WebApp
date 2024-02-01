@@ -1,4 +1,5 @@
-﻿using EMP.Core.Entities;
+﻿using EMP.Core.DisplayViewModels;
+using EMP.Core.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,5 +16,8 @@ namespace EMP.Core.DBRepos.Interfaces
         Task UpdateOrgAsync(Org argOrg);
         Task AddOrgAsync(Org argOrg);
         Task DeleteOrgAsync(Org argOrg);
+
+        Task<IEnumerable<OrgSearchViewModel>> SearchOrgAsync(string argsort = "", string argsortorder = "", OrgSearchInputModel argOrgSearchInputModel = null);
+
     }
 }

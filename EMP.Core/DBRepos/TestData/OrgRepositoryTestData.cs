@@ -1,4 +1,5 @@
 ﻿using EMP.Core.DBRepos.Interfaces;
+using EMP.Core.DisplayViewModels;
 using EMP.Core.Entities;
 using System;
 using System.Collections.Generic;
@@ -6,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EMP.Core.DBRepos
+namespace EMP.Core.DBRepos.TestData
 {
     public class OrgRepositoryTestData : IOrgRepository
     {
@@ -116,6 +117,12 @@ namespace EMP.Core.DBRepos
             }
 
             return Task.CompletedTask;
+        }
+
+        public async Task<IEnumerable<OrgSearchViewModel>> SearchOrgAsync(string argsort = "", string argsortorder = "", OrgSearchInputModel argOrgSearchInputModel = null)
+        {
+
+            return Enumerable.Empty<OrgSearchViewModel>();
         }
     }
 }
